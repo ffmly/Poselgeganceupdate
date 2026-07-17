@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flyer - POS Installment ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  @page { size: A5; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* ========== FLYER CONTAINER (A5) ========== */
+  .flyer {
+    width: 420mm;
+    max-width: 100%;
+    background: #0a0a0f;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(99,102,241,0.15);
+  }
+
+  /* ========== TOP SECTION ========== */
+  .header {
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    padding: 40px 50px;
+    text-align: center;
+    border-bottom: 1px solid rgba(99,102,241,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .brand-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(99,102,241,0.3);
+  }
+  .brand-name {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #f8fafc, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 18px;
+    color: #6366f1;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ========== MAIN CONTENT ========== */
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  /* Arabic Side */
+  .side-ar {
+    padding: 40px 40px 35px;
+    border-left: 1px solid rgba(99,102,241,0.1);
+    direction: rtl;
+  }
+  .side-fr {
+    padding: 40px 40px 35px;
+    direction: ltr;
+  }
+
+  .section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #6366f1;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title span {
+    font-size: 20px;
+  }
+  .side-ar .section-title { justify-content: flex-start; }
+  .side-fr .section-title { justify-content: flex-start; }
+
+  .service-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(99,102,241,0.08);
+    transition: all 0.2s;
+  }
+  .service-item:hover {
+    background: rgba(99,102,241,0.08);
+    border-color: rgba(99,102,241,0.2);
+  }
+  .service-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(99,102,241,0.12);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .service-text {
+    color: #f8fafc;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .service-text small {
+    color: #94a3b8;
+    font-weight: 400;
+    font-size: 13px;
+    display: block;
+  }
+  .side-fr .service-text small { direction: ltr; }
+
+  /* ========== CONTACT BAR ========== */
+  .contact-bar {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    padding: 28px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    direction: ltr;
+  }
+  .contact-item .icon {
+    font-size: 24px;
+    opacity: 0.9;
+  }
+  .contact-item .label {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.7;
+    display: block;
+  }
+
+  /* ========== FEATURES BAR ========== */
+  .features-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgba(99,102,241,0.1);
+  }
+  .feature-block {
+    padding: 20px 16px;
+    text-align: center;
+    border-left: 1px solid rgba(99,102,241,0.08);
+  }
+  .feature-block:last-child { border-left: none; }
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  .feature-label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    background: #111118;
+    padding: 20px 50px;
+    text-align: center;
+    border-top: 1px solid rgba(99,102,241,0.08);
+  }
+  .footer p {
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  /* Arabic/French labels on header */
+  .lang-tag {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .lang-tag span {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(99,102,241,0.12);
+    color: #6366f1;
+    border: 1px solid rgba(99,102,241,0.15);
+  }
+
+  @media print {
+    body { padding: 0; background: white; }
+    .flyer { box-shadow: none; border-radius: 0; max-width: 100%; }
+  }
+  @media (max-width: 600px) {
+    .main-content { grid-template-columns: 1fr; }
+    .side-ar { border-left: none; border-bottom: 1px solid rgba(99,102,241,0.1); }
+    .contact-bar { flex-direction: column; gap: 16px; padding: 20px; }
+    .features-bar { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 30px 20px; }
+    .brand-name { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="flyer">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">P</div>
+      <div class="brand-name">GESTION PRO</div>
+    </div>
+    <div class="subtitle">Logiciel de Gestion · برنامج إدارة محترف</div>
+    <div class="lang-tag">
+      <span>🇩🇿 العربية</span>
+      <span>🇫🇷 Français</span>
+      <span>🇬🇧 English</span>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main-content">
+
+    <!-- ARABIC SIDE -->
+    <div class="side-ar">
+      <div class="section-title">
+        <span>📌</span> خدماتنا
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🏪</div>
+        <div class="service-text">
+          برنامج إدارة المحلات (POS)
+          <small>مبيعات · مخزون · فواتير · تقسيط</small>
+        </div>
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🌐</div>
+        <div class="service-text">
+          برمجة مواقع وتطبيقات
+          <small>مواقع تعريفيّة · متاجر إلكترونيّة · تطبيقات ويب</small>
+        </div>
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🖥️</div>
+        <div class="service-text">
+          برامج سطح المكتب
+          <small>إدارة محلات · محاسبة · أرشفة</small>
+        </div>
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🔧</div>
+        <div class="service-text">
+          صيانة سيرفرات وأنظمة
+          <small>تركيب · تهيئة · دعم فني</small>
+        </div>
+      </div>
+
+      <!-- الميزات -->
+      <div style="margin-top:20px;">
+        <div class="section-title" style="font-size:18px; margin-bottom:12px;">
+          <span>✅</span> مميزات برنامجنا
+        </div>
+        <div style="color:#94a3b8; font-size:14px; line-height:2;">
+          ✓ بيع نقدي &bull; بيع بالأقساط<br>
+          ✓ فواتير حرارية و A4<br>
+          ✓ مسح الباركود و QR<br>
+          ✓ تقارير مبيعات ومخزون<br>
+          ✓ يدعم العربية والفرنسية والإنجليزية
+        </div>
+      </div>
+    </div>
+
+    <!-- FRENCH SIDE -->
+    <div class="side-fr">
+      <div class="section-title">
+        <span>📌</span> Nos Services
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🏪</div>
+        <div class="service-text">
+          Logiciel de Gestion (POS)
+          <small>Ventes · Stock · Factures · Crédit</small>
+        </div>
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🌐</div>
+        <div class="service-text">
+          Sites Web & Applications
+          <small>Sites vitrine · E-commerce · Apps Web</small>
+        </div>
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🖥️</div>
+        <div class="service-text">
+          Applications Desktop
+          <small>Gestion · Comptabilité · Archivage</small>
+        </div>
+      </div>
+
+      <div class="service-item">
+        <div class="service-icon">🔧</div>
+        <div class="service-text">
+          Maintenance Serveurs & Systèmes
+          <small>Installation · Configuration · Support</small>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div style="margin-top:20px;">
+        <div class="section-title" style="font-size:18px; margin-bottom:12px;">
+          <span>✅</span> Fonctionnalités Clés
+        </div>
+        <div style="color:#94a3b8; font-size:14px; line-height:2;">
+          ✓ Vente comptant & à crédit<br>
+          ✓ Impression thermique & A4<br>
+          ✓ Scan code-barres & QR<br>
+          ✓ Rapports ventes & stocks<br>
+          ✓ Arabe • Français • English
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== CONTACT ===== -->
+  <div class="contact-bar">
+    <div class="contact-item">
+      <span class="icon">👤</span>
+      <div>
+        <span class="label">Votre Expert</span>
+        رياض بن عمارة · Ryad Benammar
+      </div>
+    </div>
+    <div class="contact-item">
+      <span class="icon">💬</span>
+      <div>
+        <span class="label">WhatsApp</span>
+        <a href="https://wa.me/213562114503" style="color:white;text-decoration:none;">0562 11 45 03</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FEATURES ===== -->
+  <div class="features-bar">
+    <div class="feature-block">
+      <div class="feature-icon">💳</div>
+      <div class="feature-label">Vente & Crédit</div>
+    </div>
+    <div class="feature-block">
+      <div class="feature-icon">📊</div>
+      <div class="feature-label">Rapports</div>
+    </div>
+    <div class="feature-block">
+      <div class="feature-icon">🖨️</div>
+      <div class="feature-label">Impression</div>
+    </div>
+    <div class="feature-block">
+      <div class="feature-icon">📱</div>
+      <div class="feature-label">Multi-Plateforme</div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <p>📍 المنيعة · ولاية غرداية · الجزائر &nbsp;|&nbsp; El Meniaa, Ghardaïa, Algérie</p>
+  </div>
+
+</div>
+
+</body>
+</html>

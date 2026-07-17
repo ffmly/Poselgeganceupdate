@@ -1,0 +1,5 @@
+
+> pos-installment-erp@1.0.0 dev
+> electron-vite dev
+
+ ERROR  An entry point is required in the electron vite main config, which can be specified using "build.lib.entry" or "build.rollupOptions.input".

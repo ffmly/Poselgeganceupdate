@@ -1,0 +1,77 @@
+{
+  "name": "pos-installment-erp",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "out/main/index.js",
+  "build": {
+    "appId": "com.pos.installment-erp",
+    "productName": "POS Installment ERP",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "ffmly",
+      "repo": "Poselgeganceupdate",
+      "releaseType": "release"
+    }
+  },
+  "scripts": {
+    "dev": "electron-vite dev",
+    "prebuild": "node scripts/prebuild.mjs",
+    "build": "npm run prebuild && electron-vite build && node scripts/fix-html.mjs && electron-builder",
+    "build:app": "npm run prebuild && electron-vite build && node scripts/fix-html.mjs",
+    "preview": "electron-vite preview"
+  },
+  "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^11.5.0",
+    "electron-updater": "^6.8.9",
+    "firebase": "^12.16.0",
+    "firebase-admin": "^14.1.0",
+    "html5-qrcode": "^2.3.8",
+    "i18next": "^23.16.5",
+    "jsbarcode": "^3.12.3",
+    "lucide-react": "^0.456.0",
+    "papaparse": "^5.5.3",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.1.1",
+    "react-router-dom": "^6.27.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.0.0",
+    "@types/papaparse": "^5.5.2",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/xlsx": "^0.0.35",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.7",
+    "electron-vite": "^5.0.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.14",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-*/
+out/
+pos_data.db*
+*.tsbuildinfo
+src/main/build-config.ts
+.env
+web/elegancepos
