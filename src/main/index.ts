@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, net, dialog } from 'electron';
-import { setUpdater, checkForUpdates, downloadUpdate, quitAndInstall } from './updater';
+import { setUpdater } from './updater';
+
 import path from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
@@ -61,7 +62,7 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show();
     mainWindow?.maximize();
-    setUpdater(mainWindow);
+    setUpdater(mainWindow!);
   });
 }
 
@@ -718,17 +719,3 @@ ipcMain.handle('write-file', async (_, filePath: string, base64Data: string) => 
   }
 });
 
-// ─── Auto Updater IPC ─────────────────────────────────────────────────────────
-
-ipcMain.handle('update-check', async () => {
-  return await checkForUpdates();
-});
-
-ipcMain.handle('update-download', async () => {
-  return await downloadUpdate();
-});
-
-ipcMain.handle('update-install', async () => {
-  quitAndInstall();
-  return { success: true };
-});
