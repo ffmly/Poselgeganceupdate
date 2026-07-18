@@ -1,5 +1,6 @@
-import { autoUpdater } from 'electron-updater';
 import { BrowserWindow } from 'electron';
+import updaterPkg from 'electron-updater';
+const { autoUpdater } = updaterPkg;
 
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
