@@ -50,7 +50,9 @@ export default function Products() {
     }
 
     if (!editing) {
-      const duplicateName = await window.electronAPI.get("SELECT id,name FROM products WHERE name=? COLLATE NOCASE", form.name.trim());
+      const duplicateName = products.find(p =>
+        p.name.toLowerCase().trim() === form.name.trim().toLowerCase()
+      );
       if (duplicateName) {
         setDuplicateModal({ existingProduct: duplicateName, form: { ...form } });
         return;
