@@ -17,7 +17,8 @@
       "node_modules/better-sqlite3/**"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
