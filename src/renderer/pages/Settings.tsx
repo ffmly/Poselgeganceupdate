@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Save, Store, Globe, Database, Phone, MapPin, Building2, Printer, ToggleLeft, Image as ImageIcon, Upload, Download, RefreshCw, ArrowUpCircle } from 'lucide-react';
+import { Save, Store, Globe, Database, Phone, MapPin, Building2, Printer, ToggleLeft, Image as ImageIcon, Download, Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface PrinterInfo {
@@ -354,126 +354,10 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Updates */}
-      <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-[var(--border-color)] flex items-center gap-2 bg-[var(--bg-secondary)]/30">
-          <ArrowUpCircle className="w-5 h-5 text-indigo-500" />
-          <h2 className="font-bold text-[var(--text-primary)]">Updates</h2>
-        </div>
-        <div className="p-6">
-          <UpdateSection />
-        </div>
-      </div>
-
       <button onClick={save} className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl py-4 font-bold transition-all shadow-xl shadow-indigo-500/25 active:scale-[0.98]">
         <Save className="w-5 h-5" />
         {saved ? '✓ ' + t('saved') : t('save_settings')}
       </button>
-    </div>
-  );
-}
-
-function UpdateSection() {
-  const { t } = useTranslation();
-  const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'uptodate' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-  const [progress, setProgress] = useState(0);
-  const [version, setVersion] = useState('');
-
-  useEffect(() => {
-    if (!window.electronAPI) return;
-    window.electronAPI.onUpdateAvailable((info) => {
-      setStatus('available');
-      setVersion(info.version);
-      setMessage(`Version ${info.version} available`);
-    });
-    window.electronAPI.onUpdateNotAvailable(() => {
-      setStatus('uptodate');
-      setMessage('You have the latest version');
-    });
-    window.electronAPI.onUpdateError((msg) => {
-      setStatus('error');
-      setMessage(msg);
-    });
-    window.electronAPI.onUpdateDownloadProgress((p) => {
-      setProgress(p.percent);
-      setStatus('downloading');
-      setMessage(`Downloading... ${p.percent}%`);
-    });
-    window.electronAPI.onUpdateDownloaded(() => {
-      setStatus('downloaded');
-      setMessage('Update downloaded');
-    });
-  }, []);
-
-  const handleCheck = async () => {
-    setStatus('checking');
-    setMessage('Checking for updates...');
-    const r = await window.electronAPI.checkForUpdates();
-    if (!r.success) {
-      setStatus('error');
-      setMessage(r.message);
-    }
-  };
-
-  const handleDownload = async () => {
-    setStatus('downloading');
-    setProgress(0);
-    setMessage('Starting download...');
-    const r = await window.electronAPI.downloadUpdate();
-    if (!r.success) {
-      setStatus('error');
-      setMessage(r.message);
-    }
-  };
-
-  const handleInstall = async () => {
-    await window.electronAPI.installUpdate();
-  };
-
-  return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <p className="text-sm text-[var(--text-muted)]">Check for app updates</p>
-      {status === 'idle' && (
-        <button onClick={handleCheck} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 py-3 font-bold transition-all shadow-lg shadow-indigo-500/20">
-          <RefreshCw className="w-4 h-4" /> Check for Updates
-        </button>
-      )}
-      {status === 'checking' && (
-        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-          <RefreshCw className="w-4 h-4 animate-spin" /> {message}
-        </div>
-      )}
-      {status === 'available' && (
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-sm text-emerald-500 font-medium">{message}</p>
-          <button onClick={handleDownload} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-6 py-3 font-bold transition-all shadow-lg shadow-emerald-500/20">
-            <Download className="w-4 h-4" /> Download Update
-          </button>
-        </div>
-      )}
-      {status === 'downloading' && (
-        <div className="w-full space-y-2">
-          <p className="text-sm text-[var(--text-muted)]">{message}</p>
-          <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2 overflow-hidden">
-            <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-      )}
-      {status === 'downloaded' && (
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-sm text-emerald-500 font-medium">{message}</p>
-          <button onClick={handleInstall} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 py-3 font-bold transition-all shadow-lg shadow-indigo-500/20">
-            <ArrowUpCircle className="w-4 h-4" /> Restart & Install
-          </button>
-        </div>
-      )}
-      {status === 'uptodate' && (
-        <p className="text-sm text-emerald-500">{message}</p>
-      )}
-      {status === 'error' && (
-        <p className="text-sm text-red-500">{message}</p>
-      )}
     </div>
   );
 }

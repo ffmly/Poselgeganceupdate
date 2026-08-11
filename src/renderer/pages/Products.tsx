@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Search, Edit2, Trash2, AlertTriangle, X, Printer, RefreshCw } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, AlertTriangle, X, Printer, RefreshCw, Copy } from 'lucide-react';
 
 interface Product { id: string; name: string; barcode?: string; price_purchase: number; price_cash: number; price_credit: number; stock: number; fabrication_date?: string; expiry_date?: string; }
 const empty: Omit<Product, 'id'> = { name: '', barcode: '', price_purchase: 0, price_cash: 0, price_credit: 0, stock: 0, fabrication_date: '', expiry_date: '' };
@@ -18,6 +18,7 @@ export default function Products() {
   const [printCountModal, setPrintCountModal] = useState<Product | null>(null);
   const [printCount, setPrintCount] = useState(1);
   const [alertDays, setAlertDays] = useState(4);
+  const [duplicateModal, setDuplicateModal] = useState<{ existingProduct: Product; form: Omit<Product, 'id'> } | null>(null);
 
   useEffect(() => { load(); }, []);
   const load = async () => {
@@ -47,6 +48,19 @@ export default function Products() {
         : await window.electronAPI.get("SELECT id FROM products WHERE barcode=?", form.barcode);
       if (dup) { alert(t('barcode_duplicate')); return; }
     }
+
+    if (!editing) {
+      const duplicateName = await window.electronAPI.get("SELECT id,name FROM products WHERE name=? COLLATE NOCASE", form.name.trim());
+      if (duplicateName) {
+        setDuplicateModal({ existingProduct: duplicateName, form: { ...form } });
+        return;
+      }
+    }
+
+    await doSave();
+  };
+
+  const doSave = async () => {
     if (editing) {
       await window.electronAPI.run("UPDATE products SET name=?,barcode=?,price_purchase=?,price_cash=?,price_credit=?,stock=?,fabrication_date=?,expiry_date=? WHERE id=?",
         form.name, form.barcode || null, form.price_purchase, form.price_cash, form.price_credit, form.stock, form.fabrication_date || null, form.expiry_date || null, editing.id);
@@ -59,6 +73,33 @@ export default function Products() {
       }
     }
     setModal(false); load();
+  };
+
+  const handleDuplicateChoice = async (choice: 'add_new' | 'replace') => {
+    if (!duplicateModal) return;
+    const { existingProduct, form: dupForm } = duplicateModal;
+    setDuplicateModal(null);
+
+    if (choice === 'replace') {
+      await window.electronAPI.run(
+        "UPDATE products SET name=?,barcode=?,price_purchase=?,price_cash=?,price_credit=?,stock=?,fabrication_date=?,expiry_date=? WHERE id=?",
+        dupForm.name, dupForm.barcode || null, dupForm.price_purchase, dupForm.price_cash, dupForm.price_credit, dupForm.stock, dupForm.fabrication_date || null, dupForm.expiry_date || null, existingProduct.id
+      );
+      setModal(false);
+      load();
+    } else {
+      const barcode = dupForm.barcode || String(Math.floor(100000 + Math.random() * 900000));
+      const result = await window.electronAPI.run(
+        "INSERT INTO products (name,barcode,price_purchase,price_cash,price_credit,stock,fabrication_date,expiry_date) VALUES(?,?,?,?,?,?,?,?)",
+        dupForm.name, barcode, dupForm.price_purchase, dupForm.price_cash, dupForm.price_credit, dupForm.stock, dupForm.fabrication_date || null, dupForm.expiry_date || null
+      );
+      if (result?.lastInsertRowid && !dupForm.barcode) {
+        const autoBarcode = String(Number(result.lastInsertRowid)).padStart(6, '0');
+        await window.electronAPI.run("UPDATE products SET barcode=? WHERE id=?", autoBarcode, result.lastInsertRowid);
+      }
+      setModal(false);
+      load();
+    }
   };
 
   const del = async (p: Product) => {
@@ -257,6 +298,59 @@ export default function Products() {
             <div className="flex gap-3 px-6 pb-6">
               <button onClick={() => setModal(false)} className="flex-1 bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl py-2.5 text-sm font-medium transition-all">{t('cancel')}</button>
               <button onClick={save} className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl py-2.5 text-sm font-medium transition-all shadow-lg shadow-indigo-500/20">{t('save')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Product Name Modal */}
+      {duplicateModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={() => setDuplicateModal(null)}>
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)]">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+                <h2 className="font-semibold text-[var(--text-primary)]">{t('product_name_duplicate')}</h2>
+              </div>
+              <button onClick={() => setDuplicateModal(null)} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] rounded-lg transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-[var(--text-secondary)] mb-4">
+                {t('product_name_duplicate_desc', { name: duplicateModal.existingProduct.name })}
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleDuplicateChoice('add_new')}
+                  className="w-full bg-[var(--bg-primary)]/50 border border-[var(--border-color)] rounded-xl p-4 text-start hover:border-indigo-500/50 hover:bg-[var(--bg-secondary)] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-all">
+                      <Copy className="w-5 h-5 text-indigo-400" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-[var(--text-primary)]">{t('add_as_new')}</div>
+                      <div className="text-xs text-[var(--text-muted)] mt-0.5">{t('add_as_new_desc')}</div>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleDuplicateChoice('replace')}
+                  className="w-full bg-[var(--bg-primary)]/50 border border-[var(--border-color)] rounded-xl p-4 text-start hover:border-red-500/50 hover:bg-[var(--bg-secondary)] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-500/10 rounded-lg border border-red-500/20 group-hover:bg-red-500/20 transition-all">
+                      <RefreshCw className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-[var(--text-primary)]">{t('replace_existing')}</div>
+                      <div className="text-xs text-[var(--text-muted)] mt-0.5">{t('replace_existing_desc')}</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            <div className="px-6 pb-6">
+              <button onClick={() => setDuplicateModal(null)} className="w-full bg-[var(--bg-secondary)] hover:bg-[var(--border-color)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl py-2.5 text-sm font-medium transition-all">{t('cancel')}</button>
             </div>
           </div>
         </div>

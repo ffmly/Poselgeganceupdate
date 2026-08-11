@@ -15,6 +15,7 @@ import Purchases from './pages/Purchases';
 import Reports from './pages/Reports';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
+import Zakat from './pages/Zakat';
 import Activation from './pages/Activation';
 
 function RequireAuth({ children, adminOnly = false }: { children: JSX.Element; adminOnly?: boolean }) {
@@ -74,6 +75,7 @@ export default function App() {
         <Route path="soon-expired" element={<RequireAuth adminOnly><SoonExpired /></RequireAuth>} />
         <Route path="users" element={<RequireAuth adminOnly><Users /></RequireAuth>} />
         <Route path="settings" element={<RequireAuth adminOnly><Settings /></RequireAuth>} />
+        <Route path="zakat" element={<RequireAuth><Zakat /></RequireAuth>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -56,16 +56,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   kickCashDrawer: (printerName: string) => ipcRenderer.invoke('kick-cash-drawer', printerName),
   toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
 
-  // Auto-updater
-  checkForUpdates: () => ipcRenderer.invoke('update-check'),
-  downloadUpdate: () => ipcRenderer.invoke('update-download'),
-  installUpdate: () => ipcRenderer.invoke('update-install'),
-  onUpdateAvailable: (cb: (info: any) => void) => { ipcRenderer.on('update-available', (_, info) => cb(info)); },
-  onUpdateNotAvailable: (cb: () => void) => { ipcRenderer.on('update-not-available', () => cb()); },
-  onUpdateError: (cb: (msg: string) => void) => { ipcRenderer.on('update-error', (_, msg) => cb(msg)); },
-  onUpdateDownloadProgress: (cb: (progress: any) => void) => { ipcRenderer.on('update-download-progress', (_, p) => cb(p)); },
-  onUpdateDownloaded: (cb: () => void) => { ipcRenderer.on('update-downloaded', () => cb()); },
-
   checkLicense: () => ipcRenderer.invoke('license-check'),
   activateLicense: (key: string) => ipcRenderer.invoke('license-activate', key),
 

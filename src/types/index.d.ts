@@ -286,15 +286,6 @@ declare global {
       showSaveDialog: (defaultName: string) => Promise<string | null>;
       writeFile: (filePath: string, base64Data: string) => Promise<{ success: boolean; error?: string }>;
 
-      // Auto-updater
-      checkForUpdates: () => Promise<{ success: boolean; message: string }>;
-      downloadUpdate: () => Promise<{ success: boolean; message: string }>;
-      installUpdate: () => Promise<{ success: boolean }>;
-      onUpdateAvailable: (cb: (info: { version: string; releaseDate: string; releaseNotes: string }) => void) => void;
-      onUpdateNotAvailable: (cb: () => void) => void;
-      onUpdateError: (cb: (msg: string) => void) => void;
-      onUpdateDownloadProgress: (cb: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => void;
-      onUpdateDownloaded: (cb: () => void) => void;
     };
   }
 }

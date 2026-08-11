@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import {
   LayoutDashboard, ShoppingCart, Package, Users, HandCoins,
-  Truck, ShoppingBag, BarChart3, Settings, UserCog, Monitor, Wallet, AlertTriangle
+  Truck, ShoppingBag, BarChart3, Settings, UserCog, Monitor, Wallet, AlertTriangle, Calculator
 } from 'lucide-react';
 
 const adminLinks = [
@@ -16,6 +16,7 @@ const adminLinks = [
   { to: '/suppliers', icon: Truck, key: 'suppliers' },
   { to: '/purchases', icon: ShoppingBag, key: 'purchases' },
   { to: '/reports', icon: BarChart3, key: 'reports' },
+  { to: '/zakat', icon: Calculator, key: 'zakat' },
   { to: '/soon-expired', icon: AlertTriangle, key: 'soon_expired' },
   { to: '/users', icon: UserCog, key: 'users' },
   { to: '/settings', icon: Settings, key: 'settings' },
@@ -28,6 +29,7 @@ const sellerLinks = [
   { to: '/installments', icon: HandCoins, key: 'installments' },
   { to: '/suppliers', icon: Truck, key: 'suppliers' },
   { to: '/purchases', icon: ShoppingBag, key: 'purchases' },
+  { to: '/zakat', icon: Calculator, key: 'zakat' },
 ];
 
 export default function Sidebar() {

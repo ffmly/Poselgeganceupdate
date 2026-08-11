@@ -15,6 +15,7 @@ const ar = {
     reports: 'التقارير',
     users: 'المستخدمين',
     settings: 'الإعدادات',
+    zakat: 'الزكاة',
     logout: 'تسجيل الخروج',
 
     // Auth
@@ -343,6 +344,35 @@ const ar = {
     // Sync status
     online: 'متصل',
     pending_sync: 'معلقة للمزامنة',
+
+    // Zakat
+    zakat_calculator: 'حاسبة الزكاة',
+    zakat_title: 'حساب زكاة المال',
+    zakat_desc: 'أدخل الأموال والممتلكات الخاضعة للزكاة لحساب المبلغ المستحق',
+    zakat_nisab_label: 'قيمة النصاب (جرام ذهب)',
+    zakat_gold_price: 'سعر جرام الذهب اليوم',
+    zakat_nisab_threshold: 'حد النصاب',
+    zakat_cash_in_hand: 'النقد الموجود',
+    zakat_bank_balance: 'الرصيد البنكي',
+    zakat_investments: 'الاستثمارات',
+    zakat_inventory_value: 'قيمة البضاعة (سعر الجملة)',
+    zakat_receivables: 'الديون المرتجاة',
+    zakat_payables: 'الديون المستحقة عليك',
+    zakat_total_assets: 'إجمالي الأصول الخاضعة للزكاة',
+    zakat_payable: 'الزكاة المستحقة (2.5%)',
+    zakat_not_eligible: 'أصولك أقل من النصاب، لا تجب عليك الزكاة',
+    zakat_eligible: 'تجب عليك الزكاة، الأصول تتجاوز النصاب',
+    zakat_calculate: 'احسب الزكاة',
+    zakat_reset: 'إعادة تعيين',
+    zakat_note: 'نسبة الزكاة 2.5% على الأصول التي تبلغ النصاب وتدور عليها سنة هجرية',
+
+    // Duplicate product name
+    product_name_duplicate: 'يوجد منتج بنفس الاسم',
+    product_name_duplicate_desc: 'المنتج "{{name}}" موجود بالفعل في قاعدة البيانات. ماذا تريد أن تفعل؟',
+    add_as_new: 'إضافة كمنتج جديد',
+    add_as_new_desc: 'إنشاء منتج منفصل بنفس الاسم مع سعر وباركود مختلفين',
+    replace_existing: 'استبدال المنتج القديم',
+    replace_existing_desc: 'تحديث المنتج الموجود بالمعلومات الجديدة',
   }
 };
 
@@ -359,8 +389,10 @@ const fr = {
     reports: 'Rapports',
     users: 'Utilisateurs',
     settings: 'Paramètres',
+    zakat: 'Zakat',
     logout: 'Déconnexion',
     login: 'Connexion',
+    zakat: 'Zakat',
     username: "Nom d'utilisateur",
     password: 'Mot de passe',
     invalid_credentials: 'Identifiants invalides',
@@ -667,6 +699,35 @@ const fr = {
     // Sync status
     online: 'En ligne',
     pending_sync: 'en attente de synchronisation',
+
+    // Zakat
+    zakat_calculator: 'Calculateur de Zakat',
+    zakat_title: 'Calcul de la Zakat Al-Mal',
+    zakat_desc: 'Entrez vos biens soumis à la zakat pour calculer le montant dû',
+    zakat_nisab_label: 'Valeur du Nisab (grammes d\'or)',
+    zakat_gold_price: "Prix du gramme d'or aujourd'hui",
+    zakat_nisab_threshold: 'Seuil du Nisab',
+    zakat_cash_in_hand: 'Espèces en main',
+    zakat_bank_balance: 'Solde bancaire',
+    zakat_investments: 'Investissements',
+    zakat_inventory_value: 'Valeur du stock (prix de gros)',
+    zakat_receivables: 'Créances (attendues)',
+    zakat_payables: 'Dettes (vos dettes)',
+    zakat_total_assets: 'Total des actifs soumis à la zakat',
+    zakat_payable: 'Zakat due (2,5%)',
+    zakat_not_eligible: 'Vos actifs sont inférieurs au seuil du nisab, aucune zakat n\'est due',
+    zakat_eligible: 'La zakat est due, vos actifs dépassent le seuil du nisab',
+    zakat_calculate: 'Calculer la Zakat',
+    zakat_reset: 'Réinitialiser',
+    zakat_note: 'Le taux de la zakat est de 2,5% sur les actifs atteignant le seuil du nisab et détenus pendant une année lunaire',
+
+    // Duplicate product name
+    product_name_duplicate: 'Ce nom de produit existe déjà',
+    product_name_duplicate_desc: 'Le produit "{{name}}" existe déjà dans la base de données. Que souhaitez-vous faire ?',
+    add_as_new: 'Ajouter comme nouveau produit',
+    add_as_new_desc: 'Créer un produit séparé avec le même nom mais un prix et code-barres différents',
+    replace_existing: 'Remplacer le produit existant',
+    replace_existing_desc: 'Mettre à jour le produit existant avec les nouvelles informations',
   }
 };
 
@@ -683,6 +744,7 @@ const en = {
     reports: 'Reports',
     users: 'Users',
     settings: 'Settings',
+    zakat: 'Zakat',
     logout: 'Logout',
     login: 'Login',
     username: 'Username',
@@ -991,6 +1053,35 @@ const en = {
     // Sync status
     online: 'Online',
     pending_sync: 'pending sync',
+
+    // Zakat
+    zakat_calculator: 'Zakat Calculator',
+    zakat_title: 'Zakat Al-Mal Calculation',
+    zakat_desc: 'Enter your zakat-eligible assets to calculate the amount due',
+    zakat_nisab_label: 'Nisab Value (grams of gold)',
+    zakat_gold_price: "Today's Gold Price per Gram",
+    zakat_nisab_threshold: 'Nisab Threshold',
+    zakat_cash_in_hand: 'Cash in Hand',
+    zakat_bank_balance: 'Bank Balance',
+    zakat_investments: 'Investments',
+    zakat_inventory_value: 'Inventory Value (Wholesale)',
+    zakat_receivables: 'Receivables (expected)',
+    zakat_payables: 'Payables (your debts)',
+    zakat_total_assets: 'Total Zakat-Eligible Assets',
+    zakat_payable: 'Zakat Payable (2.5%)',
+    zakat_not_eligible: 'Your assets are below the nisab threshold, no zakat is due',
+    zakat_eligible: 'Zakat is due, your assets exceed the nisab threshold',
+    zakat_calculate: 'Calculate Zakat',
+    zakat_reset: 'Reset',
+    zakat_note: 'Zakat rate is 2.5% on assets that reach the nisab threshold and have been held for one lunar year',
+
+    // Duplicate product name
+    product_name_duplicate: 'Product name already exists',
+    product_name_duplicate_desc: 'Product "{{name}}" already exists in the database. What would you like to do?',
+    add_as_new: 'Add as New Product',
+    add_as_new_desc: 'Create a separate product with the same name but different price and barcode',
+    replace_existing: 'Replace Existing Product',
+    replace_existing_desc: 'Update the existing product with the new details',
   }
 };
 
