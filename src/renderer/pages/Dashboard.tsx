@@ -68,6 +68,7 @@ export default function Dashboard() {
     const todayRev = await window.electronAPI.get("SELECT COALESCE(SUM(total - discount),0) as total FROM sales WHERE DATE(created_at) = DATE('now', 'localtime')");
     const todayExp = await window.electronAPI.get("SELECT COALESCE(SUM(amount),0) as total FROM expenses WHERE DATE(created_at) = DATE('now', 'localtime')");
     const todayRet = await window.electronAPI.get("SELECT COALESCE(SUM(total),0) as total FROM product_returns WHERE DATE(created_at) = DATE('now', 'localtime')");
+    const todayCash = await window.electronAPI.get("SELECT COALESCE(SUM(CASE WHEN type='in' THEN amount ELSE -amount END),0) as net FROM cash_movements WHERE DATE(created_at) = DATE('now', 'localtime')");
     const totalDebt = await window.electronAPI.get("SELECT COALESCE(SUM(total - discount),0) as total FROM sales WHERE type='debt'");
 
     const alertDays = Number(settings?.expiry_alert_days) || 4;
@@ -95,7 +96,7 @@ export default function Dashboard() {
       todayRevenue: revenue,
       todayExpenses: expenses,
       todayReturns: returns,
-      netCash: revenue - returns - expenses,
+      netCash: revenue - returns - expenses + (todayCash?.net || 0),
       netProfit: profitData?.profit || 0,
       recentSales: recent || [],
     });

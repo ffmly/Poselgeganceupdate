@@ -366,6 +366,20 @@ const ar = {
     zakat_reset: 'إعادة تعيين',
     zakat_note: 'نسبة الزكاة 2.5% على الأصول التي تبلغ النصاب وتدور عليها سنة هجرية',
 
+    // Annual Inventory / Reports
+    this_week: 'هذا الأسبوع',
+    annual_inventory_report: 'تقرير الجرد السنوي',
+    annual_inventory_detailed_report: 'تقرير مفصل للجرد السنوي',
+    closing_stock: 'وضع المخزون في نهاية العام',
+    closing_stock_desc: 'جميع السلع الموجودة حالياً مع الكميات والقيم',
+    total_inventory_value: 'القيمة الإجمالية للمخزون',
+    profit_and_loss: 'حساب الأرباح والخسائر',
+    profit_and_loss_desc: 'صافي الربح = إجمالي المبيعات - (تكلفة البضاعة المباعة + المصاريف)',
+    total_sales_revenue: 'إجمالي إيرادات المبيعات',
+    cost_of_goods_sold: 'تكلفة البضاعة المباعة',
+    other_expenses: 'مصاريف أخرى',
+    net_profit_loss: 'صافي الربح / الخسارة',
+
     // Duplicate product name
     product_name_duplicate: 'يوجد منتج بنفس الاسم',
     product_name_duplicate_desc: 'المنتج "{{name}}" موجود بالفعل في قاعدة البيانات. ماذا تريد أن تفعل؟',
@@ -721,6 +735,20 @@ const fr = {
     zakat_reset: 'Réinitialiser',
     zakat_note: 'Le taux de la zakat est de 2,5% sur les actifs atteignant le seuil du nisab et détenus pendant une année lunaire',
 
+    // Annual Inventory / Reports
+    this_week: 'Cette semaine',
+    annual_inventory_report: "Rapport d'inventaire annuel",
+    annual_inventory_detailed_report: "Rapport détaillé d'inventaire annuel",
+    closing_stock: 'Stock de clôture',
+    closing_stock_desc: 'Tous les produits actuellement en magasin avec quantités et valeurs',
+    total_inventory_value: 'Valeur totale du stock',
+    profit_and_loss: 'Pertes et profits',
+    profit_and_loss_desc: 'Bénéfice net = Ventes totales - (Coût des marchandises vendues + Dépenses)',
+    total_sales_revenue: 'Revenu total des ventes',
+    cost_of_goods_sold: 'Coût des marchandises vendues',
+    other_expenses: 'Autres dépenses',
+    net_profit_loss: 'Bénéfice net / Perte',
+
     // Duplicate product name
     product_name_duplicate: 'Ce nom de produit existe déjà',
     product_name_duplicate_desc: 'Le produit "{{name}}" existe déjà dans la base de données. Que souhaitez-vous faire ?',
@@ -1074,6 +1102,20 @@ const en = {
     zakat_calculate: 'Calculate Zakat',
     zakat_reset: 'Reset',
     zakat_note: 'Zakat rate is 2.5% on assets that reach the nisab threshold and have been held for one lunar year',
+
+    // Annual Inventory / Reports
+    this_week: 'This Week',
+    annual_inventory_report: 'Annual Inventory Report',
+    annual_inventory_detailed_report: 'Annual Inventory Detailed Report',
+    closing_stock: 'Closing Stock',
+    closing_stock_desc: 'All products currently in store with quantities and values',
+    total_inventory_value: 'Total Inventory Value',
+    profit_and_loss: 'Profit & Loss',
+    profit_and_loss_desc: 'Net Profit = Total Sales - (Cost of Goods Sold + Expenses)',
+    total_sales_revenue: 'Total Sales Revenue',
+    cost_of_goods_sold: 'Cost of Goods Sold',
+    other_expenses: 'Other Expenses',
+    net_profit_loss: 'Net Profit / Loss',
 
     // Duplicate product name
     product_name_duplicate: 'Product name already exists',

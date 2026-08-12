@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   BarChart3, TrendingUp, AlertTriangle, Printer, 
-  FileText, Download, Search 
+  FileText, Download, Search, Calculator, Package
 } from 'lucide-react';
 
-type ReportType = 'sales' | 'overdue' | 'inventory' | 'top_products' | 'expenses' | 'expiring' | 'cash_in';
-type DateFilter = 'today' | 'this_month' | 'this_year' | 'all_time' | 'custom';
+type ReportType = 'sales' | 'overdue' | 'inventory' | 'top_products' | 'expenses' | 'expiring' | 'cash_in' | 'annual_inventory';
+type DateFilter = 'today' | 'this_week' | 'this_month' | 'this_year' | 'all_time' | 'custom';
 
 export default function Reports() {
   const { t } = useTranslation();
@@ -34,6 +34,9 @@ export default function Reports() {
     const buildDateCond = (alias = '') => {
       const col = alias ? `${alias}.created_at` : 'created_at';
       if (dateFilter === 'today') return `DATE(${col}) = DATE('now', 'localtime')`;
+      if (dateFilter === 'this_week') {
+        return `${col} >= datetime('now', 'localtime', 'weekday 0', '-6 days', 'start of day')`;
+      }
       if (dateFilter === 'this_month') return `strftime('%m-%Y', ${col}) = strftime('%m-%Y', 'now')`;
       if (dateFilter === 'this_year') return `strftime('%Y', ${col}) = strftime('%Y', 'now')`;
       if (dateFilter === 'all_time') return "1=1";
@@ -156,9 +159,17 @@ export default function Reports() {
       const all = await window.electronAPI.getAllCashMovements();
       const filterDate = (d: string) => {
         const dateStr = new Date(d).toISOString().split('T')[0];
-        if (dateFilter === 'today') return dateStr === new Date().toISOString().split('T')[0];
-        if (dateFilter === 'this_month') return dateStr.substring(0, 7) === new Date().toISOString().substring(0, 7);
-        if (dateFilter === 'this_year') return dateStr.substring(0, 4) === new Date().toISOString().substring(0, 4);
+        const now = new Date();
+        if (dateFilter === 'today') return dateStr === now.toISOString().split('T')[0];
+        if (dateFilter === 'this_week') {
+          const day = now.getDay();
+          const monday = new Date(now);
+          monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+          monday.setHours(0, 0, 0, 0);
+          return new Date(dateStr) >= monday;
+        }
+        if (dateFilter === 'this_month') return dateStr.substring(0, 7) === now.toISOString().substring(0, 7);
+        if (dateFilter === 'this_year') return dateStr.substring(0, 4) === now.toISOString().substring(0, 4);
         if (dateFilter === 'all_time') return true;
         if (dateFilter === 'custom' && dateRange.start && dateRange.end) return dateStr >= dateRange.start && dateStr <= dateRange.end;
         return true;
@@ -168,6 +179,52 @@ export default function Reports() {
       setData({
         summary: { count: cashInItems.length, total },
         items: cashInItems,
+        overdue: [],
+        lowStock: [],
+      });
+    } else if (type === 'annual_inventory') {
+      // Closing Stock
+      const allProducts = await window.electronAPI.query(`
+        SELECT *, (stock * COALESCE(price_purchase, 0)) as stock_value
+        FROM products ORDER BY stock_value DESC
+      `);
+      const totalInventoryValue = (allProducts || []).reduce((s: number, p: any) => s + (p.stock_value || 0), 0);
+
+      // Profit & Loss
+      const dateCond = buildDateCond('s');
+      const pnl = await window.electronAPI.get(`
+        SELECT 
+          COALESCE(SUM(s.total - s.discount), 0) as totalRevenue,
+          COUNT(*) as salesCount
+        FROM sales s WHERE ${dateCond}
+      `);
+      const cogsData = await window.electronAPI.get(`
+        SELECT COALESCE(SUM(si.quantity * COALESCE(p.price_purchase, 0)), 0) as cogs
+        FROM sale_items si
+        JOIN sales s ON si.sale_id = s.id
+        JOIN products p ON si.product_id = p.id
+        WHERE ${dateCond}
+      `);
+      const expData = await window.electronAPI.get(`
+        SELECT COALESCE(SUM(amount), 0) as totalExpenses
+        FROM expenses WHERE ${buildDateCond('e')}
+      `);
+      const netRevenue = (pnl?.totalRevenue || 0);
+      const cogs = (cogsData?.cogs || 0);
+      const totalExpenses = (expData?.totalExpenses || 0);
+      const netProfitLoss = netRevenue - cogs - totalExpenses;
+
+      setData({
+        summary: {
+          count: allProducts?.length || 0,
+          totalInventoryValue,
+          totalRevenue: netRevenue,
+          cogs,
+          totalExpenses,
+          netProfitLoss,
+          salesCount: pnl?.salesCount || 0,
+        },
+        items: allProducts || [],
         overdue: [],
         lowStock: [],
       });
@@ -198,6 +255,7 @@ export default function Reports() {
           <div className="flex items-center gap-3">
             <select value={dateFilter} onChange={e => setDateFilter(e.target.value as DateFilter)} className="bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm font-bold focus:outline-none shadow-sm cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors">
               <option value="today">{t('today')}</option>
+              <option value="this_week">{t('this_week')}</option>
               <option value="this_month">{t('this_month')}</option>
               <option value="this_year">{t('this_year')}</option>
               <option value="all_time">{t('all_time')}</option>
@@ -224,7 +282,7 @@ export default function Reports() {
 
         {/* Report Type Tabs */}
         <div className="flex items-center gap-2 bg-[var(--bg-secondary)]/50 p-1.5 rounded-2xl">
-          {(['sales', 'overdue', 'inventory', 'top_products', 'expenses', 'expiring', 'cash_in'] as ReportType[]).map(t_ => (
+          {(['sales', 'overdue', 'inventory', 'top_products', 'expenses', 'expiring', 'cash_in', 'annual_inventory'] as ReportType[]).map(t_ => (
             <button 
               key={t_} 
               onClick={() => setType(t_)} 
@@ -237,6 +295,7 @@ export default function Reports() {
               {t_ === 'expenses' && <AlertTriangle className="w-4 h-4" />}
               {t_ === 'expiring' && <AlertTriangle className="w-4 h-4" />}
               {t_ === 'cash_in' && <TrendingUp className="w-4 h-4" />}
+              {t_ === 'annual_inventory' && <Calculator className="w-4 h-4" />}
               {t(t_ + '_report')}
             </button>
           ))}
@@ -301,6 +360,24 @@ export default function Reports() {
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><BarChart3 className="w-16 h-16" /></div>
                 <div className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em] mb-2">{t('average_cash_in')}</div>
                 <div className="text-3xl font-black text-indigo-500">{fmt(data.summary.count > 0 ? data.summary.total / data.summary.count : 0)}</div>
+              </div>
+            </>
+          ) : type === 'annual_inventory' ? (
+            <>
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] p-6 rounded-3xl shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Package className="w-16 h-16" /></div>
+                <div className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em] mb-2">{t('total_inventory_value')}</div>
+                <div className="text-3xl font-black text-amber-500">{fmt(data.summary.totalInventoryValue)}</div>
+              </div>
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] p-6 rounded-3xl shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><FileText className="w-16 h-16" /></div>
+                <div className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em] mb-2">{t('total_products')}</div>
+                <div className="text-3xl font-black text-[var(--text-primary)]">{data.summary.count}</div>
+              </div>
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] p-6 rounded-3xl shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Calculator className="w-16 h-16" /></div>
+                <div className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em] mb-2">{t('net_profit_loss')}</div>
+                <div className={`text-3xl font-black ${(data.summary.netProfitLoss || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>{fmt(data.summary.netProfitLoss)}</div>
               </div>
             </>
           ) : (
@@ -541,6 +618,86 @@ export default function Reports() {
         </div>
       </div>
 
+      {/* Annual Inventory - Closing Stock + P&L */}
+      {type === 'annual_inventory' && (
+        <div className="space-y-6">
+          {/* Closing Stock */}
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-3xl overflow-hidden shadow-sm">
+            <div className="px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/30">
+              <h3 className="font-black text-[var(--text-primary)] text-lg flex items-center gap-3">
+                <Package className="w-6 h-6 text-amber-500" />{t('closing_stock')}
+              </h3>
+              <p className="text-[var(--text-muted)] text-[10px] font-bold uppercase tracking-widest mt-1">{t('closing_stock_desc')}</p>
+            </div>
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[var(--bg-secondary)]/50">
+                  <th className="text-start px-6 py-4 text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest">{t('product')}</th>
+                  <th className="text-start px-6 py-4 text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest">{t('barcode')}</th>
+                  <th className="text-end px-6 py-4 text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest">{t('purchase_price')}</th>
+                  <th className="text-end px-6 py-4 text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest">{t('stock')}</th>
+                  <th className="text-end px-6 py-4 text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest">{t('total')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border-color)]">
+                {data.items.filter((p: any) => (p.stock || 0) > 0).map((p: any) => (
+                  <tr key={p.id} className="hover:bg-[var(--bg-primary)]/50 transition-colors">
+                    <td className="px-6 py-3 text-[var(--text-primary)] font-medium">{p.name}</td>
+                    <td className="px-6 py-3 text-[var(--text-muted)] text-xs font-mono">{p.barcode || '-'}</td>
+                    <td className="px-6 py-3 text-end text-amber-600 dark:text-amber-400">{fmt(p.price_purchase)}</td>
+                    <td className={`px-6 py-3 text-end font-bold ${p.stock <= 0 ? 'text-red-500' : 'text-[var(--text-primary)]'}`}>{p.stock}</td>
+                    <td className="px-6 py-3 text-end text-amber-600 dark:text-amber-400 font-bold">{fmt(p.stock_value)}</td>
+                  </tr>
+                ))}
+                {data.items.length === 0 && <tr><td colSpan={5} className="px-6 py-12 text-center text-[var(--text-muted)]">{t('no_data')}</td></tr>}
+              </tbody>
+              <tfoot>
+                <tr className="bg-[var(--bg-secondary)]/50 font-black border-t-2 border-[var(--border-color)]">
+                  <td colSpan={4} className="px-6 py-4 text-end text-[var(--text-secondary)] text-sm uppercase tracking-widest">{t('total_inventory_value')}</td>
+                  <td className="px-6 py-4 text-end text-amber-500 text-xl">{fmt(data.summary.totalInventoryValue)}</td>
+                </tr>
+              </tfoot>
+            </table>
+            </div>
+          </div>
+
+          {/* Profit & Loss */}
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-3xl overflow-hidden shadow-sm">
+            <div className="px-8 py-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/30">
+              <h3 className="font-black text-[var(--text-primary)] text-lg flex items-center gap-3">
+                <Calculator className="w-6 h-6 text-indigo-500" />{t('profit_and_loss')}
+              </h3>
+              <p className="text-[var(--text-muted)] text-[10px] font-bold uppercase tracking-widest mt-1">{t('profit_and_loss_desc')}</p>
+            </div>
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-[var(--border-color)]">
+                <tr className="hover:bg-[var(--bg-primary)]/50 transition-colors">
+                  <td className="px-6 py-4 text-[var(--text-secondary)] font-medium">{t('total_sales_revenue')}</td>
+                  <td className="px-6 py-4 text-end text-[var(--text-primary)] font-bold text-lg">{fmt(data.summary.totalRevenue)}</td>
+                </tr>
+                <tr className="hover:bg-[var(--bg-primary)]/50 transition-colors">
+                  <td className="px-6 py-4 text-[var(--text-secondary)] font-medium">{t('cost_of_goods_sold')}</td>
+                  <td className="px-6 py-4 text-end text-red-500 font-bold text-lg">-{fmt(data.summary.cogs)}</td>
+                </tr>
+                <tr className="hover:bg-[var(--bg-primary)]/50 transition-colors">
+                  <td className="px-6 py-4 text-[var(--text-secondary)] font-medium">{t('other_expenses')}</td>
+                  <td className="px-6 py-4 text-end text-red-500 font-bold text-lg">-{fmt(data.summary.totalExpenses)}</td>
+                </tr>
+                <tr className="bg-[var(--bg-secondary)]/30 font-black border-t-2 border-[var(--border-color)]">
+                  <td className="px-6 py-4 text-[var(--text-primary)] text-sm uppercase tracking-widest">{t('net_profit_loss')}</td>
+                  <td className={`px-6 py-4 text-end text-2xl ${(data.summary.netProfitLoss || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {fmt(data.summary.netProfitLoss)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 2. MINIMALIST PRINT-ONLY REPORT */}
       <div className="hidden print:block font-serif text-black p-0 m-0">
         <div className="text-center mb-8 border-b-2 border-black pb-6">
@@ -746,6 +903,58 @@ export default function Reports() {
                     </tr>
                   );
                 })}
+              </tbody>
+            </>
+          )}
+
+          {type === 'annual_inventory' && (
+            <>
+              {/* Closing Stock Print */}
+              <thead><tr className="border-y-2 border-black bg-gray-50"><th colSpan={5} className="border border-black p-2 text-center uppercase font-bold">{t('closing_stock')}</th></tr></thead>
+              <thead><tr className="bg-gray-50">
+                <th className="border border-black p-2 text-start uppercase">{t('product_name')}</th>
+                <th className="border border-black p-2 text-start uppercase">{t('barcode')}</th>
+                <th className="border border-black p-2 text-end uppercase">{t('purchase_price')}</th>
+                <th className="border border-black p-2 text-end uppercase">{t('stock')}</th>
+                <th className="border border-black p-2 text-end uppercase">{t('total')}</th>
+              </tr></thead>
+              <tbody>
+                {data.items.filter((p: any) => (p.stock || 0) > 0).map((p: any) => (
+                  <tr key={p.id} className="border-b border-black">
+                    <td className="border border-black p-2 font-bold">{p.name}</td>
+                    <td className="border border-black p-2">{p.barcode || '-'}</td>
+                    <td className="border border-black p-2 text-end">{fmt(p.price_purchase)}</td>
+                    <td className="border border-black p-2 text-end font-bold">{p.stock}</td>
+                    <td className="border border-black p-2 text-end font-bold">{fmt(p.stock_value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-black bg-gray-50 font-bold">
+                  <td colSpan={4} className="border border-black p-2 text-end uppercase">{t('total_inventory_value')}</td>
+                  <td className="border border-black p-2 text-end text-lg">{fmt(data.summary.totalInventoryValue)}</td>
+                </tr>
+              </tfoot>
+
+              {/* P&L Print */}
+              <thead><tr className="border-y-2 border-black bg-gray-50"><th colSpan={2} className="border border-black p-2 text-center uppercase font-bold">{t('profit_and_loss')}</th></tr></thead>
+              <tbody>
+                <tr className="border-b border-black">
+                  <td className="border border-black p-2 font-bold">{t('total_sales_revenue')}</td>
+                  <td className="border border-black p-2 text-end font-bold">{fmt(data.summary.totalRevenue)}</td>
+                </tr>
+                <tr className="border-b border-black">
+                  <td className="border border-black p-2">{t('cost_of_goods_sold')}</td>
+                  <td className="border border-black p-2 text-end text-red-700">-{fmt(data.summary.cogs)}</td>
+                </tr>
+                <tr className="border-b border-black">
+                  <td className="border border-black p-2">{t('other_expenses')}</td>
+                  <td className="border border-black p-2 text-end text-red-700">-{fmt(data.summary.totalExpenses)}</td>
+                </tr>
+                <tr className="border-t-2 border-black bg-gray-50 font-bold">
+                  <td className="border border-black p-2 uppercase">{t('net_profit_loss')}</td>
+                  <td className="border border-black p-2 text-end text-lg">{(data.summary.netProfitLoss || 0) >= 0 ? fmt(data.summary.netProfitLoss) : '(' + fmt(Math.abs(data.summary.netProfitLoss)) + ')'}</td>
+                </tr>
               </tbody>
             </>
           )}
